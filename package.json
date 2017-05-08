@@ -1,0 +1,9 @@
+{
+  "name": "group-mailer",
+  "version": "0.0.1",
+  "description": "Rabble Rouser service to send emails to the members of a specific group.",
+  "main": "index.js",
+  "repository": "git@github.com:rabblerouser/group-mailer.git",
+  "author": "Rabble Rouser Team",
+  "license": "AGPL-3.0"
+}
