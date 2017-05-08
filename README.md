@@ -1,5 +1,7 @@
 # group-mailer
 
+[![Build Status](https://api.travis-ci.org/rabblerouser/group-mailer.svg?branch=master)](https://travis-ci.org/rabblerouser/group-mailer)
+
 Rabble Rouser service use to send emails to the member of a group.
 
 ** It needs a [group-mailer-receiver](https://github.com/rabblerouser/group-mail-receiver) to get the `send-group-email` events from the event stream.**
