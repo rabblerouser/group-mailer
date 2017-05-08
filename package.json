@@ -4,12 +4,16 @@
   "description": "Rabble Rouser service to send emails to the members of a specific group.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "mocha --recursive test"
   },
   "repository": "git@github.com:rabblerouser/group-mailer.git",
   "author": "Rabble Rouser Team",
   "license": "AGPL-3.0",
   "dependencies": {
     "express": "^4.15.2"
+  },
+  "devDependencies": {
+    "mocha": "^3.3.0"
   }
 }
