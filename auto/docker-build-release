@@ -1,0 +1,10 @@
+#!/bin/sh -eu
+cd $(dirname $0)/..
+
+docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
+
+echo "--- Building docker image"
+docker build -t rabblerouser/group-mailer .
+
+echo "--- Release docker image"
+docker push rabblerouser/group-mailer
