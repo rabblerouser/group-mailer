@@ -2,6 +2,10 @@ language: node_js
 node_js:
   - "7"
 
-install: npm install
+services:
+  - docker
 
-script: npm test
+script: ./auto/dev-environment npm test
+
+after_success:
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then auto/docker-build-release; fi
