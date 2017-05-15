@@ -11,3 +11,18 @@ The service:
 1. Receives a `send-group-email` event which includes the `to` field that should be the email address of a group.
 1. Uses the group email address to determine who the members of the group are.
 1. Puts a `send-email` event on the stream to send an individual email to each member of the group.
+
+
+## Run instructions
+
+  Pre-requisites:
+  * Docker
+
+
+1. To run:
+
+    `$ ./auto/dev-environment npm run`
+
+1. To test:
+
+    `$ ./auto/dev-environment npm test`
