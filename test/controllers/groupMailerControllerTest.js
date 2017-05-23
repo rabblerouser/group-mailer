@@ -17,10 +17,10 @@ describe('groupMailerController', () => {
   });
 
   describe('sendGroupEmail', () => {
-    describe('when the group-email information is not as per contract', () => {
+    describe('when the group-email data is not as per contract', () => {
 
       it('should return 400', () => {
-        req = { body: { email : '' }};
+        req = { body: { } };
 
         controller.sendGroupEmail(req, res);
         expect(res.sendStatus).to.have.been.calledWith(400);
@@ -29,8 +29,24 @@ describe('groupMailerController', () => {
       it('should send an group-email-failed event??');
     });
 
-    describe('when the group-email information is as per contract', () => {
-      it('should return 200');
+    describe('when the group-email data is as per contract', () => {
+      it('should return 200', () => {
+        req = {
+          body: {
+            email: {
+              from: 'jules.admin@gmail.com',
+              to: '23840234809234832094823904@rr-weird-instance.com',
+              subject: 'Attention citizens!',
+              body: 'Email body'
+            }
+          }
+        };
+
+
+        controller.sendGroupEmail(req, res);
+        expect(res.sendStatus).to.have.been.calledWith(200);
+      });
+
       it('should trigger the process for sending the group-email');
     });
   });

@@ -3,7 +3,10 @@
 let express = require('express');
 let app = express();
 
-app.get('/mail', function(req, res){
+app.get('/mail', function(req, res) {
+
+
+
   res.send('Just send that event, I\'ll process it!');
 });
 
