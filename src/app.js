@@ -1,10 +1,13 @@
 'use strict';
 
 let express = require('express');
+let bodyParser = require('body-parser');
 let app = express();
 
-app.get('/mail', function(req, res){
-  res.send('Just send that event, I\'ll process it!');
+app.use(bodyParser.json());
+
+app.post('/mail', function(req, res){
+  res.send(req.body);
 });
 
 app.get('/status', function(req, res){
