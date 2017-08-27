@@ -7,7 +7,8 @@ let app = express();
 app.use(bodyParser.json());
 
 app.post('/mail', function(req, res){
-  res.send(req.body);
+  console.log(req.body);
+  res.sendStatus(202);
 });
 
 app.get('/status', function(req, res){
