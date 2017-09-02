@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
+    "ci": "npm run lint && npm test",
     "lint": "eslint src",
     "test": "NODE_ENV=test mocha -r src/__tests__/testGlobals --recursive src"
   },

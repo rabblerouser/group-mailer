@@ -5,7 +5,7 @@ node_js:
 services:
   - docker
 
-script: ./auto/dev-environment npm test
+script: ./auto/dev-environment npm run ci
 
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then auto/docker-build-release; fi
