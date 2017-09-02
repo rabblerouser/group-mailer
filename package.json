@@ -4,6 +4,7 @@
   "description": "Rabble Rouser service to send emails to the members of a specific group.",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon index.js",
     "start": "node index.js",
     "test": "NODE_ENV=test mocha -r test/testGlobals --recursive test"
   },
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "mocha": "^3.3.0"
+    "mocha": "^3.3.0",
+    "nodemon": "^1.11.0"
   }
 }
