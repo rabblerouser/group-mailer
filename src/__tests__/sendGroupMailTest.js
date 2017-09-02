@@ -8,9 +8,7 @@ describe('sendGroupMail', () => {
   let sandbox;
   let s3;
   let res;
-  const req = {
-    body: { emailRecords: [{ key: 'email-object' }] },
-  };
+  const req = { body: { emailRecords: [{ key: 'email-object' }] } };
   const emailObject = { Body: 'Some email body' };
 
   beforeEach(() => {
@@ -49,7 +47,17 @@ describe('sendGroupMail', () => {
       });
   });
 
-  it('does that once per record in the payload');
+  it('publishes one event per record in the payload', () => {
+    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(emailObject));
+    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'other-email-object' }).returns(awsSuccess(emailObject));
+
+    const multiRecordRequest = { body: { emailRecords: [{ key: 'email-object' }, { key: 'other-email-object' }] } };
+
+    return sendGroupMail(multiRecordRequest, res)
+      .then(() => {
+        expect(streamClient.publish.callCount).to.eql(2);
+      });
+  });
 
   it('gives a 400 if the object cannot be fetched', () => {
     s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsFailure());

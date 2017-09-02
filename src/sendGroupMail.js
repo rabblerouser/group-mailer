@@ -13,25 +13,26 @@ const handleError = (res, status, error) => () => {
   res.status(status).send({ error });
 };
 
-const sendGroupMail = (req, res) => {
-  const s3 = new AWS.S3({ region, accessKeyId, secretAccessKey, endpoint });
-  const emailObjectKey = req.body.emailRecords[0].key;
+const getEmailObjectAndPublishEvent = (s3, res) => (emailRecord) => {
+  const memberEmails = store.getMembers().map(member => member.email);
 
-  return s3.getObject({ Bucket: emailBucket, Key: emailObjectKey }).promise()
+  return s3.getObject({ Bucket: emailBucket, Key: emailRecord.key }).promise()
     .then((object) => {
       logger.info(`Retrieved email data from S3 object: ${object.Body}`);
-
-      const memberEmails = store.getMembers().map(member => member.email);
 
       return streamClient.publish('send-email', {
         id: uuid.v4(),
         to: memberEmails,
-        bodyLocation: emailObjectKey,
+        bodyLocation: emailRecord.key,
       });
-    }, handleError(res, 400, 'Could not download S3 object'))
-    .then(() => {
-      res.status(202).send();
-    })
+    }, handleError(res, 400, 'Could not download S3 object'));
+};
+
+const sendGroupMail = (req, res) => {
+  const s3 = new AWS.S3({ region, accessKeyId, secretAccessKey, endpoint });
+
+  return Promise.all(req.body.emailRecords.map(getEmailObjectAndPublishEvent(s3, res)))
+    .then(() => res.status(202).send())
     .catch(handleError(res, 500, 'Could not publish event to stream'));
 };
 
