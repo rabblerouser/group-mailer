@@ -3,6 +3,7 @@
 let express = require('express');
 let bodyParser = require('body-parser');
 let app = express();
+const streamClient = require('./streamClient');
 
 app.use(bodyParser.json());
 
