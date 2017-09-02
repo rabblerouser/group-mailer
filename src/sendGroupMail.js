@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const uuid = require('uuid');
+const mailParser = require('mailparser');
 const store = require('./store');
 const streamClient = require('./streamClient');
 const config = require('./config');
@@ -17,15 +18,16 @@ const getEmailObjectAndPublishEvent = (s3, res) => (emailRecord) => {
   const memberEmails = store.getMembers().map(member => member.email);
 
   return s3.getObject({ Bucket: emailBucket, Key: emailRecord.key }).promise()
-    .then((object) => {
-      logger.info(`Retrieved email data from S3 object: ${object.Body}`);
-
-      return streamClient.publish('send-email', {
+    .then(object => mailParser.simpleParser(object.Body))
+    .then(email => (
+      streamClient.publish('send-email', {
         id: uuid.v4(),
+        from: email.from.value[0].address,
         to: memberEmails,
+        subject: email.subject,
         bodyLocation: emailRecord.key,
-      });
-    }, handleError(res, 400, 'Could not download S3 object'));
+      })
+    ), handleError(res, 400, 'Could not download S3 object'));
 };
 
 const sendGroupMail = (req, res) => {

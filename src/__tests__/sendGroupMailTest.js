@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const uuid = require('uuid');
+const mailParser = require('mailparser');
 const streamClient = require('../streamClient');
 const sendGroupMail = require('../sendGroupMail');
 const store = require('../store');
@@ -9,7 +10,11 @@ describe('sendGroupMail', () => {
   let s3;
   let res;
   const req = { body: { emailRecords: [{ key: 'email-object' }] } };
-  const emailObject = { Body: 'Some email body' };
+  const emailS3Object = { Body: 'Some email body' };
+  const emailData = {
+    subject: 'Some Subject',
+    from: { value: [{ address: 'someone@example.com' }] },
+  };
 
   beforeEach(() => {
     sandbox = sinon.sandbox.create();
@@ -18,6 +23,7 @@ describe('sendGroupMail', () => {
     res.status.returns(res);
     s3 = { getObject: sinon.stub() };
     sandbox.stub(AWS, 'S3').returns(s3);
+    sandbox.stub(mailParser, 'simpleParser').withArgs('Some email body').returns(emailData);
     sandbox.stub(streamClient, 'publish').resolves();
     sandbox.stub(uuid, 'v4').returns('some-uuid');
     sandbox.stub(store, 'getMembers').returns([
@@ -34,13 +40,15 @@ describe('sendGroupMail', () => {
   const awsFailure = error => ({ promise: () => Promise.reject(error) });
 
   it('puts a send-email event on the stream and returns 202', () => {
-    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(emailObject));
+    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(emailS3Object));
 
     return sendGroupMail(req, res)
       .then(() => {
         expect(streamClient.publish).to.have.been.calledWith('send-email', {
           id: 'some-uuid',
+          from: 'someone@example.com',
           to: ['john@example.com', 'jane@example.com'],
+          subject: 'Some Subject',
           bodyLocation: 'email-object',
         });
         expect(res.status).to.have.been.calledWith(202);
@@ -48,8 +56,8 @@ describe('sendGroupMail', () => {
   });
 
   it('publishes one event per record in the payload', () => {
-    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(emailObject));
-    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'other-email-object' }).returns(awsSuccess(emailObject));
+    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(emailS3Object));
+    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'other-email-object' }).returns(awsSuccess(emailS3Object));
 
     const multiRecordRequest = { body: { emailRecords: [{ key: 'email-object' }, { key: 'other-email-object' }] } };
 
@@ -70,7 +78,7 @@ describe('sendGroupMail', () => {
   });
 
   it('gives a 500 if the event publishing fails', () => {
-    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(emailObject));
+    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(emailS3Object));
     streamClient.publish.rejects();
 
     return sendGroupMail(req, res)
