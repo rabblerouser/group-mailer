@@ -10,6 +10,7 @@ app.use(bodyParser.json());
 
 streamClient.on('member-registered', store.createMember);
 streamClient.on('member-removed', store.deleteMember);
+streamClient.on('member-edited', store.updateMember);
 app.post('/events', streamClient.listen());
 
 
