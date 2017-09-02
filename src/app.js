@@ -4,8 +4,16 @@ let express = require('express');
 let bodyParser = require('body-parser');
 let app = express();
 const streamClient = require('./streamClient');
+const store = require('./store');
 
 app.use(bodyParser.json());
+
+streamClient.on('member-registered', store.createMember);
+app.post('/events', streamClient.listen());
+
+
+app.get('/members', (req, res) => res.json(store.getMembers())); // TODO: Delete me!
+
 
 app.post('/mail', function(req, res){
   console.log(req.body);
