@@ -15,10 +15,12 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "@rabblerouser/stream-client": "^0.8.8",
+    "aws-sdk": "^2.108.0",
     "body-parser": "^1.17.2",
     "express": "^4.15.2",
     "morgan": "^1.8.2",
     "redux": "^3.7.2",
+    "uuid": "^3.1.0",
     "winston": "^2.3.1"
   },
   "devDependencies": {

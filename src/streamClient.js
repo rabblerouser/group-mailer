@@ -1,16 +1,17 @@
 const createClient = require('@rabblerouser/stream-client');
+const config = require('./config');
 
 const streamClientSettings = {
-  publishToStream: process.env.STREAM_NAME || 'rabblerouser_stream',
-  listenWithAuthToken: process.env.LISTENER_AUTH_TOKEN || 'secret',
-  readArchiveFromBucket: process.env.ARCHIVE_BUCKET || 'rr-event-archive',
+  publishToStream: config.stream.streamName,
+  listenWithAuthToken: config.stream.listenerAuthToken,
+  readArchiveFromBucket: config.stream.archiveBucket,
 
-  region: process.env.AWS_REGION || 'ap-southeast-2',
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'FAKE',
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'ALSO FAKE',
+  region: config.aws.region,
+  accessKeyId: config.aws.accessKeyId,
+  secretAccessKey: config.aws.secretAccessKey,
 
-  kinesisEndpoint: process.env.KINESIS_ENDPOINT,
-  s3Endpoint: process.env.S3_ENDPOINT,
+  kinesisEndpoint: config.aws.kinesisEndpoint,
+  s3Endpoint: config.aws.s3Endpoint,
 };
 
 module.exports = createClient(streamClientSettings);

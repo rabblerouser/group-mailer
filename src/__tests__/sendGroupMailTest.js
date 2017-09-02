@@ -1,24 +1,74 @@
+const AWS = require('aws-sdk');
+const uuid = require('uuid');
+const streamClient = require('../streamClient');
 const sendGroupMail = require('../sendGroupMail');
+const store = require('../store');
 
 describe('sendGroupMail', () => {
   let sandbox;
+  let s3;
   let res;
+  const req = {
+    body: { emailRecords: [{ key: 'email-object' }] },
+  };
+  const emailObject = { Body: 'Some email body' };
 
   beforeEach(() => {
     sandbox = sinon.sandbox.create();
 
-    res = {
-      send: sandbox.spy(),
-    };
+    res = { status: sandbox.stub(), send: sinon.stub() };
+    res.status.returns(res);
+    s3 = { getObject: sinon.stub() };
+    sandbox.stub(AWS, 'S3').returns(s3);
+    sandbox.stub(streamClient, 'publish').resolves();
+    sandbox.stub(uuid, 'v4').returns('some-uuid');
+    sandbox.stub(store, 'getMembers').returns([
+      { email: 'john@example.com' },
+      { email: 'jane@example.com' },
+    ]);
   });
 
   afterEach(() => {
     sandbox.restore();
   });
 
-  it('gives a 202', () => {
-    sendGroupMail({}, res);
+  const awsSuccess = data => ({ promise: () => Promise.resolve(data) });
+  const awsFailure = error => ({ promise: () => Promise.reject(error) });
 
-    expect(res.send).to.have.been.calledWith(202);
+  it('puts a send-email event on the stream and returns 202', () => {
+    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(emailObject));
+
+    return sendGroupMail(req, res)
+      .then(() => {
+        expect(streamClient.publish).to.have.been.calledWith('send-email', {
+          id: 'some-uuid',
+          to: ['john@example.com', 'jane@example.com'],
+          bodyLocation: 'email-object',
+        });
+        expect(res.status).to.have.been.calledWith(202);
+      });
+  });
+
+  it('does that once per record in the payload');
+
+  it('gives a 400 if the object cannot be fetched', () => {
+    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsFailure());
+
+    return sendGroupMail(req, res)
+      .then(() => {
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.send).to.have.been.calledWith({ error: 'Could not download S3 object' });
+      });
+  });
+
+  it('gives a 500 if the event publishing fails', () => {
+    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(emailObject));
+    streamClient.publish.rejects();
+
+    return sendGroupMail(req, res)
+      .then(() => {
+        expect(res.status).to.have.been.calledWith(500);
+        expect(res.send).to.have.been.calledWith({ error: 'Could not publish event to stream' });
+      });
   });
 });
