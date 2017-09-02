@@ -22,4 +22,19 @@ describe('members reducer', () => {
     const state = [{ id: 'existing-member' }, { id: 'preserved-member' }];
     expect(members(state, event)).to.eql([{ id: 'preserved-member' }]);
   });
+
+  it('edits a member', () => {
+    const event = {
+      type: 'UPDATE_MEMBER',
+      member: { id: 'existing-member', email: 'new@email.com' },
+    };
+    const state = [
+      { id: 'existing-member', email: 'old@email.com', name: 'Person McPersonface' },
+      { id: 'preserved-member' },
+    ];
+    expect(members(state, event)).to.eql([
+      { id: 'existing-member', email: 'new@email.com', name: 'Person McPersonface' },
+      { id: 'preserved-member' },
+    ]);
+  });
 });
