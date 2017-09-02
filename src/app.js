@@ -9,6 +9,7 @@ const store = require('./store');
 app.use(bodyParser.json());
 
 streamClient.on('member-registered', store.createMember);
+streamClient.on('member-removed', store.deleteMember);
 app.post('/events', streamClient.listen());
 
 
