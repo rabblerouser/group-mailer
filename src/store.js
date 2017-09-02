@@ -1,9 +1,7 @@
 const redux = require('redux');
 const members = require('./reducers/members');
 
-const rootReducer = redux.combineReducers({
-  members
-});
+const rootReducer = redux.combineReducers({ members });
 
 const store = redux.createStore(rootReducer);
 
