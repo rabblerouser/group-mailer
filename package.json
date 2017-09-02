@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
+    "lint": "eslint src",
     "test": "NODE_ENV=test mocha -r test/testGlobals --recursive test"
   },
   "repository": "git@github.com:rabblerouser/group-mailer.git",
@@ -17,6 +18,9 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "eslint": "^4.6.0",
+    "eslint-config-airbnb-base": "^11.3.2",
+    "eslint-plugin-import": "^2.7.0",
     "mocha": "^3.3.0",
     "nodemon": "^1.11.0"
   }
