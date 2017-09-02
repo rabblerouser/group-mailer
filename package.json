@@ -7,7 +7,7 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "lint": "eslint src",
-    "test": "NODE_ENV=test mocha -r test/testGlobals --recursive test"
+    "test": "NODE_ENV=test mocha -r src/__tests__/testGlobals --recursive src"
   },
   "repository": "git@github.com:rabblerouser/group-mailer.git",
   "author": "Rabble Rouser Team",
