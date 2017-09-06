@@ -9,36 +9,40 @@ const logger = require('./logger');
 const { region, accessKeyId, secretAccessKey, s3Endpoint: endpoint } = config.aws;
 const emailBucket = config.emailBucket;
 
-const handleError = (res, status, error) => () => {
-  logger.error(error);
-  res.status(status).send({ error });
-};
+const publishEmailEvent = bodyLocation => (email) => {
+  if (email.to.value[0].address !== `everyone@${config.domain}`) {
+    return Promise.reject({ status: 400, message: 'Not a valid email recipient' });
+  }
 
-const getEmailObjectAndPublishEvent = (s3, res) => (emailRecord) => {
   const memberEmails = store.getMembers().map(member => member.email);
-
-  return s3.getObject({ Bucket: emailBucket, Key: emailRecord.key }).promise()
-    .then(object => mailParser.simpleParser(object.Body))
-    .then((email) => {
-      if (email.to.value[0].address !== `everyone@${config.domain}`) {
-        return handleError(res, 400, 'Not a valid email recipient')();
-      }
-      return streamClient.publish('send-email', {
-        id: uuid.v4(),
-        from: email.from.value[0].address,
-        to: memberEmails,
-        subject: email.subject,
-        bodyLocation: emailRecord.key,
-      });
-    }, handleError(res, 400, 'Could not download S3 object'));
+  return streamClient.publish('send-email', {
+    id: uuid.v4(),
+    from: email.from.value[0].address,
+    to: memberEmails,
+    subject: email.subject,
+    bodyLocation,
+  })
+    .catch(() => Promise.reject({ status: 500, message: 'Could not publish event to stream' }));
 };
+
+const getEmailObjectAndPublishEvent = s3 => emailRecord => (
+  s3.getObject({ Bucket: emailBucket, Key: emailRecord.key }).promise()
+    .then(
+      object => mailParser.simpleParser(object.Body),
+      () => Promise.reject({ status: 400, message: 'Could not download S3 object' })
+    )
+    .then(publishEmailEvent(emailRecord.key))
+);
 
 const sendGroupMail = (req, res) => {
   const s3 = new AWS.S3({ region, accessKeyId, secretAccessKey, endpoint });
 
-  return Promise.all(req.body.emailRecords.map(getEmailObjectAndPublishEvent(s3, res)))
+  return Promise.all(req.body.emailRecords.map(getEmailObjectAndPublishEvent(s3)))
     .then(() => res.status(202).send())
-    .catch(handleError(res, 500, 'Could not publish event to stream'));
+    .catch((error) => {
+      logger.error(error.message);
+      res.status(error.status).send({ error: error.message });
+    });
 };
 
 module.exports = sendGroupMail;
