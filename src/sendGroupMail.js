@@ -19,15 +19,18 @@ const getEmailObjectAndPublishEvent = (s3, res) => (emailRecord) => {
 
   return s3.getObject({ Bucket: emailBucket, Key: emailRecord.key }).promise()
     .then(object => mailParser.simpleParser(object.Body))
-    .then(email => (
-      streamClient.publish('send-email', {
+    .then((email) => {
+      if (email.to.value[0].address !== `everyone@${config.domain}`) {
+        return handleError(res, 400, 'Not a valid email recipient')();
+      }
+      return streamClient.publish('send-email', {
         id: uuid.v4(),
         from: email.from.value[0].address,
         to: memberEmails,
         subject: email.subject,
         bodyLocation: emailRecord.key,
-      })
-    ), handleError(res, 400, 'Could not download S3 object'));
+      });
+    }, handleError(res, 400, 'Could not download S3 object'));
 };
 
 const sendGroupMail = (req, res) => {

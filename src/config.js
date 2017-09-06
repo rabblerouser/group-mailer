@@ -6,6 +6,7 @@ module.exports = {
   },
 
   emailBucket: process.env.S3_EMAIL_BUCKET || 'email-bucket',
+  domain: process.env.DOMAIN || 'example.com',
 
   aws: {
     region: process.env.AWS_REGION || 'ap-southeast-2',
