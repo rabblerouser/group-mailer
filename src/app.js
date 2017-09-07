@@ -11,9 +11,9 @@ if (process.env.NODE_ENV !== 'test') {
 }
 app.use(bodyParser.json());
 
-streamClient.on('member-registered', store.createMember);
-streamClient.on('member-removed', store.deleteMember);
-streamClient.on('member-edited', store.updateMember);
+streamClient.on('member-registered', store.registerMember);
+streamClient.on('member-removed', store.removeMember);
+streamClient.on('member-edited', store.editMember);
 
 app.post('/events', streamClient.listen());
 app.post('/mail', sendGroupMail);

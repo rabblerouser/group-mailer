@@ -11,7 +11,7 @@ describe('members reducer', () => {
 
   it('creates a member', () => {
     const state = [{ id: 'existing-member', email: 'existing@example.com' }];
-    const action = { type: 'CREATE_MEMBER', member: { id: 'new-member', email: 'new@example.com', name: 'Me' } };
+    const action = { type: 'REGISTER_MEMBER', member: { id: 'new-member', email: 'new@example.com', name: 'Me' } };
     expect(members(state, action)).to.eql([
       { id: 'existing-member', email: 'existing@example.com' },
       { id: 'new-member', email: 'new@example.com' },
@@ -19,14 +19,14 @@ describe('members reducer', () => {
   });
 
   it('deletes a member', () => {
-    const event = { type: 'DELETE_MEMBER', member: { id: 'delete-me' } };
+    const event = { type: 'REMOVE_MEMBER', member: { id: 'delete-me' } };
     const state = [{ id: 'delete-me', email: 'delete@example.com' }, { id: 'keep-me', email: 'keep@example.com' }];
     expect(members(state, event)).to.eql([{ id: 'keep-me', email: 'keep@example.com' }]);
   });
 
   it('edits a member', () => {
     const event = {
-      type: 'UPDATE_MEMBER',
+      type: 'EDIT_MEMBER',
       member: { id: 'updated-member', email: 'updated@example.com', name: 'Updated Member' },
     };
     const state = [

@@ -2,11 +2,11 @@ const defaultState = [];
 
 const reducer = (state = defaultState, action) => {
   switch (action.type) {
-    case 'CREATE_MEMBER':
+    case 'REGISTER_MEMBER':
       return state.concat({ id: action.member.id, email: action.member.email });
-    case 'DELETE_MEMBER':
+    case 'REMOVE_MEMBER':
       return state.filter(member => member.id !== action.member.id);
-    case 'UPDATE_MEMBER':
+    case 'EDIT_MEMBER':
       return state.map(member => (
         member.id === action.member.id ?
           { id: action.member.id, email: action.member.email } :

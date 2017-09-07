@@ -18,7 +18,7 @@ const dispatch = (action) => {
 module.exports = {
   getMemberEmails: () => members.getEmails(store.getState().members),
 
-  createMember: member => dispatch({ type: 'CREATE_MEMBER', member }),
-  deleteMember: member => dispatch({ type: 'DELETE_MEMBER', member }),
-  updateMember: member => dispatch({ type: 'UPDATE_MEMBER', member }),
+  registerMember: member => dispatch({ type: 'REGISTER_MEMBER', member }),
+  removeMember: member => dispatch({ type: 'REMOVE_MEMBER', member }),
+  editMember: member => dispatch({ type: 'EDIT_MEMBER', member }),
 };
