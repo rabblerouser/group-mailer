@@ -31,6 +31,7 @@ describe('sendGroupMail', () => {
     sandbox.stub(streamClient, 'publish').resolves();
     sandbox.stub(uuid, 'v4').returns('some-uuid');
     sandbox.stub(store, 'getMemberEmails').returns(['john@example.com', 'jane@example.com']);
+    sandbox.stub(store, 'getAuthorisedSenders').returns(['admin@example.com']);
   });
 
   afterEach(() => {
@@ -73,6 +74,17 @@ describe('sendGroupMail', () => {
       .then(() => {
         expect(res.status).to.have.been.calledWith(400);
         expect(res.send).to.have.been.calledWith({ error: 'Not a valid email recipient' });
+      });
+  });
+
+  it('gives a 401 if the sender is not authorised', () => {
+    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(emailS3Object));
+    mailParser.simpleParser.withArgs('Some email body').returns(emailData({ from: 'wrong@wrong.com' }));
+
+    return sendGroupMail(req, res)
+      .then(() => {
+        expect(res.status).to.have.been.calledWith(401);
+        expect(res.send).to.have.been.calledWith({ error: 'Not an authorised email sender' });
       });
   });
 
