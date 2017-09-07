@@ -9,7 +9,7 @@ const logger = require('./logger');
 const { region, accessKeyId, secretAccessKey, s3Endpoint: endpoint } = config.aws;
 const emailBucket = config.emailBucket;
 
-const publishEmailEvent = bodyLocation => (email) => {
+const publishEmailEvent = (bodyLocation, email) => {
   const from = email.from.value[0].address;
   if (!store.getAuthorisedSenders().includes(from)) {
     return Promise.reject({ status: 401, message: 'Not an authorised email sender' });
@@ -28,14 +28,15 @@ const publishEmailEvent = bodyLocation => (email) => {
     .catch(() => Promise.reject({ status: 500, message: 'Could not publish event to stream' }));
 };
 
-const getEmailObjectAndPublishEvent = s3 => emailRecord => (
-  s3.getObject({ Bucket: emailBucket, Key: emailRecord.key }).promise()
-    .then(
-      object => mailParser.simpleParser(object.Body),
-      () => Promise.reject({ status: 400, message: 'Could not download S3 object' })
-    )
-    .then(publishEmailEvent(emailRecord.key))
-);
+const getEmailObjectAndPublishEvent = s3 => async (emailRecord) => {
+  try {
+    const s3Object = await s3.getObject({ Bucket: emailBucket, Key: emailRecord.key }).promise();
+    const email = await mailParser.simpleParser(s3Object.Body);
+    return publishEmailEvent(emailRecord.key, email);
+  } catch (e) {
+    return Promise.reject({ status: 400, message: 'Could not download S3 object' });
+  }
+};
 
 const sendGroupMail = (req, res) => {
   const s3 = new AWS.S3({ region, accessKeyId, secretAccessKey, endpoint });
