@@ -1,4 +1,4 @@
-const members = require('../members');
+const { reducer: members, getEmails } = require('../members');
 
 describe('members reducer', () => {
   it('has no members by default', () => {
@@ -10,31 +10,40 @@ describe('members reducer', () => {
   });
 
   it('creates a member', () => {
-    const state = [{ id: 'existing-member' }];
-    expect(members(state, { type: 'CREATE_MEMBER', member: { id: 'blah' } })).to.eql([
-      { id: 'existing-member' },
-      { id: 'blah' },
+    const state = [{ id: 'existing-member', email: 'existing@example.com' }];
+    const action = { type: 'CREATE_MEMBER', member: { id: 'new-member', email: 'new@example.com', name: 'Me' } };
+    expect(members(state, action)).to.eql([
+      { id: 'existing-member', email: 'existing@example.com' },
+      { id: 'new-member', email: 'new@example.com' },
     ]);
   });
 
   it('deletes a member', () => {
-    const event = { type: 'DELETE_MEMBER', member: { id: 'existing-member' } };
-    const state = [{ id: 'existing-member' }, { id: 'preserved-member' }];
-    expect(members(state, event)).to.eql([{ id: 'preserved-member' }]);
+    const event = { type: 'DELETE_MEMBER', member: { id: 'delete-me' } };
+    const state = [{ id: 'delete-me', email: 'delete@example.com' }, { id: 'keep-me', email: 'keep@example.com' }];
+    expect(members(state, event)).to.eql([{ id: 'keep-me', email: 'keep@example.com' }]);
   });
 
   it('edits a member', () => {
     const event = {
       type: 'UPDATE_MEMBER',
-      member: { id: 'existing-member', email: 'new@email.com' },
+      member: { id: 'updated-member', email: 'updated@example.com', name: 'Updated Member' },
     };
     const state = [
-      { id: 'existing-member', email: 'old@email.com', name: 'Person McPersonface' },
-      { id: 'preserved-member' },
+      { id: 'updated-member', email: 'old@example.com' },
+      { id: 'unchanged-member', email: 'unchanged@example.com' },
     ];
     expect(members(state, event)).to.eql([
-      { id: 'existing-member', email: 'new@email.com', name: 'Person McPersonface' },
-      { id: 'preserved-member' },
+      { id: 'updated-member', email: 'updated@example.com' },
+      { id: 'unchanged-member', email: 'unchanged@example.com' },
     ]);
+  });
+});
+
+describe('getEmails', () => {
+  it('extracts emails from the member data', () => {
+    const memberData = [{ id: 'first', email: 'first@example.com' }, { id: 'second', email: 'second@example.com' }];
+
+    expect(getEmails(memberData)).to.eql(['first@example.com', 'second@example.com']);
   });
 });

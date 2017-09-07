@@ -14,11 +14,10 @@ const publishEmailEvent = bodyLocation => (email) => {
     return Promise.reject({ status: 400, message: 'Not a valid email recipient' });
   }
 
-  const memberEmails = store.getMembers().map(member => member.email);
   return streamClient.publish('send-email', {
     id: uuid.v4(),
     from: email.from.value[0].address,
-    to: memberEmails,
+    to: store.getMemberEmails(),
     subject: email.subject,
     bodyLocation,
   })

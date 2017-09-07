@@ -30,10 +30,7 @@ describe('sendGroupMail', () => {
     sandbox.stub(mailParser, 'simpleParser').withArgs('Some email body').returns(emailData());
     sandbox.stub(streamClient, 'publish').resolves();
     sandbox.stub(uuid, 'v4').returns('some-uuid');
-    sandbox.stub(store, 'getMembers').returns([
-      { email: 'john@example.com' },
-      { email: 'jane@example.com' },
-    ]);
+    sandbox.stub(store, 'getMemberEmails').returns(['john@example.com', 'jane@example.com']);
   });
 
   afterEach(() => {

@@ -1,7 +1,7 @@
 const redux = require('redux');
 const members = require('./reducers/members');
 
-const rootReducer = redux.combineReducers({ members });
+const rootReducer = redux.combineReducers({ members: members.reducer });
 
 const store = redux.createStore(rootReducer);
 
@@ -16,7 +16,8 @@ const dispatch = (action) => {
 };
 
 module.exports = {
-  getMembers: () => store.getState().members,
+  getMemberEmails: () => members.getEmails(store.getState().members),
+
   createMember: member => dispatch({ type: 'CREATE_MEMBER', member }),
   deleteMember: member => dispatch({ type: 'DELETE_MEMBER', member }),
   updateMember: member => dispatch({ type: 'UPDATE_MEMBER', member }),
