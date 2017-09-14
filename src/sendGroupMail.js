@@ -34,6 +34,7 @@ const getEmailObjectAndPublishEvent = s3 => async (emailRecord) => {
     const email = await mailParser.simpleParser(s3Object.Body);
     return publishEmailEvent(emailRecord.key, email);
   } catch (e) {
+    logger.error(`Could not download S3 object: ${emailBucket}/${emailRecord.key} : ${e}`);
     return Promise.reject({ status: 400, message: 'Could not download S3 object' });
   }
 };
