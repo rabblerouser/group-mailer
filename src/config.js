@@ -5,7 +5,7 @@ module.exports = {
     archiveBucket: process.env.ARCHIVE_BUCKET || 'rr-event-archive',
   },
 
-  emailBucket: process.env.S3_EMAIL_BUCKET || 'email-bucket',
+  emailBucket: process.env.S3_EMAILS_BUCKET || 'email-bucket',
   domain: process.env.DOMAIN || 'example.com',
 
   aws: {
