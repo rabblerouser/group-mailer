@@ -24,7 +24,7 @@ const publishEmailEvent = (bodyLocation, email) => {
     to: store.getMemberEmails(),
     subject: email.subject,
     bodyLocation: {
-      bodyLocation
+      bodyLocation,
     },
   })
     .catch(() => Promise.reject({ status: 500, message: 'Could not publish event to stream' }));
