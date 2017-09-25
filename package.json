@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
+    "ci": "npm run lint && npm test",
     "lint": "eslint src",
     "test": "NODE_ENV=test mocha -r src/__tests__/testGlobals --recursive src"
   },
@@ -14,9 +15,14 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "@rabblerouser/stream-client": "^0.8.8",
+    "aws-sdk": "^2.108.0",
     "body-parser": "^1.17.2",
     "express": "^4.15.2",
-    "redux": "^3.7.2"
+    "mailparser": "^2.0.5",
+    "morgan": "^1.8.2",
+    "redux": "^3.7.2",
+    "uuid": "^3.1.0",
+    "winston": "^2.3.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
@@ -24,6 +30,8 @@
     "eslint-config-airbnb-base": "^11.3.2",
     "eslint-plugin-import": "^2.7.0",
     "mocha": "^3.3.0",
-    "nodemon": "^1.11.0"
+    "nodemon": "^1.11.0",
+    "sinon": "^3.2.1",
+    "sinon-chai": "^2.13.0"
   }
 }
