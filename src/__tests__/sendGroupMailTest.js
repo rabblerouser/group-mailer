@@ -48,7 +48,9 @@ describe('sendGroupMail', () => {
           from: 'admin@example.com',
           to: ['john@example.com', 'jane@example.com'],
           subject: 'Some Subject',
-          bodyLocation: 'email-object',
+          bodyLocation: {
+            bodyLocation: 'email-object',
+          },
         });
         expect(res.status).to.have.been.calledWith(202);
       });
