@@ -49,7 +49,7 @@ describe('sendGroupMail', () => {
           to: ['john@example.com', 'jane@example.com'],
           subject: 'Some Subject',
           bodyLocation: {
-            bodyLocation: 'email-object',
+            key: 'email-object',
           },
         });
         expect(res.status).to.have.been.calledWith(202);
