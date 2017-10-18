@@ -4,12 +4,12 @@
 
 Rabble Rouser service use to send emails to the member of a group.
 
-** It needs a [group-mail-receiver](https://github.com/rabblerouser/group-mail-receiver) to get the `send-group-email` events from the event stream.**
+** It needs a [group-mail-receiver](https://github.com/rabblerouser/group-mail-receiver) to notify it when new email request objects are uploaded to S3.**
 
 The service:
 
-1. Receives a `send-group-email` event which includes the `to` field that should be the email address of a group.
-1. Uses the group email address to determine who the members of the group are.
+1. Receives a POST request pointing it at an S3 object which contains an email request.
+1. Uses the S3 data to authenticate the request and determine who should receive the final email.
 1. Puts a `send-email` event on the stream to send an individual email to each member of the group.
 
 
@@ -18,14 +18,26 @@ The service:
   Pre-requisites:
   * Docker
 
+1. To seed:
+
+    `$ ./auto/dev-environment npm run seed`
 
 1. To run:
 
-    `$ ./auto/dev-environment npm run`
+    `$ ./auto/dev-environment npm start`
 
 1. To test:
 
     `$ ./auto/dev-environment npm test`
+
+## Send a test request
+To test the application manually, you can simulate the uploading of an email to S3, and then trigger the application via
+POST request. With the services all started (see above), run these commands:
+
+```
+aws --endpoint-url='http://localhost:4569' s3api put-object --bucket email-bucket --key some-email-object --body src/fixtures/mimeFile.txt
+curl localhost:3000/mail -H 'Content-Type: application/json' -d '{ "emailRecords": [{ "key": "some-email-object" }] }'
+```
 
 ## Infra
 

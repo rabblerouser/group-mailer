@@ -7,8 +7,50 @@ services:
       dockerfile: Dockerfile.dev
     environment:
       NODE_ENV: development
+      KINESIS_ENDPOINT: http://kinesis:4567
+      S3_ENDPOINT: http://s3:4569
+      STREAM_NAME: rabblerouser_stream
+      S3_EMAILS_BUCKET: email-bucket
+      ARCHIVE_BUCKET: rr-event-archive
     command: npm start
     volumes:
       - .:/app
     ports:
       - "3000:3000"
+    depends_on:
+      - kinesis
+      - s3
+      - event-archiver
+    links:
+      - "s3:rr-event-archive.s3"
+      - "s3:email-bucket.s3"
+  event-forwarder:
+    image: rabblerouser/event-forwarder
+    depends_on:
+      - kinesis
+      - group-mailer
+    environment:
+      KINESIS_ENDPOINT: http://kinesis:4567
+      LISTENER_ENDPOINT: http://group-mailer:3000/events
+      LISTENER_AUTH_TOKEN: secret
+      STREAM_NAME: rabblerouser_stream
+  event-archiver:
+    image: rabblerouser/event-archiver
+    depends_on:
+      - kinesis
+      - s3
+    links:
+      - "s3:rr-event-archive.s3"
+    environment:
+      KINESIS_ENDPOINT: http://kinesis:4567
+      S3_ENDPOINT: http://s3:4569
+      STREAM_NAME: rabblerouser_stream
+      ARCHIVE_BUCKET: rr-event-archive
+  kinesis:
+    image: instructure/kinesalite
+  s3:
+    image: lphoward/fake-s3
+    ports:
+      - '4569:4569'
+    volumes:
+      - ./s3-data:/fakes3_root
