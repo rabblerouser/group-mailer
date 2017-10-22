@@ -63,7 +63,7 @@ describe('sendGroupMail', () => {
     return sendGroupMail(req, res)
       .then(() => {
         expect(res.status).to.have.been.calledWith(400);
-        expect(res.send).to.have.been.calledWith({ error: 'Not a valid email recipient' });
+        expect(res.send).to.have.been.calledWith({ error: 'Not a valid email recipient: wrong@wrong.com' });
       });
   });
 

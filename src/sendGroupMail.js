@@ -15,7 +15,7 @@ const publishEmailEvent = (bodyLocation, email) => {
     return Promise.reject({ status: 401, message: 'Not an authorised email sender' });
   }
   if (email.to.value[0].address !== `everyone@${config.domain}`) {
-    return Promise.reject({ status: 400, message: 'Not a valid email recipient' });
+    return Promise.reject({ status: 400, message: `Not a valid email recipient: ${email.to.value[0].address}` });
   }
 
   return streamClient.publish('send-email', {
