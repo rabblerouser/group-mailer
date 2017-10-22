@@ -1,6 +1,6 @@
-FROM node:7
+FROM rabblerouser/node-base
 
-RUN mkdir /app
+RUN mkdir -p /app
 WORKDIR /app
 
 COPY ./package.json ./
