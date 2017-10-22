@@ -30,13 +30,13 @@ const publishEmailEvent = (bodyLocation, email) => {
     .catch(() => Promise.reject({ status: 500, message: 'Could not publish event to stream' }));
 };
 
-const getEmailObjectAndPublishEvent = s3 => async (emailRecord) => {
+const getEmailObjectAndPublishEvent = async (s3, s3ObjectKey) => {
   try {
-    const s3Object = await s3.getObject({ Bucket: emailBucket, Key: emailRecord.key }).promise();
+    const s3Object = await s3.getObject({ Bucket: emailBucket, Key: s3ObjectKey }).promise();
     const email = await mailParser.simpleParser(s3Object.Body);
-    return publishEmailEvent(emailRecord.key, email);
+    return publishEmailEvent(s3ObjectKey, email);
   } catch (e) {
-    logger.error(`Could not download S3 object: ${emailBucket}/${emailRecord.key} : ${e}`);
+    logger.error(`Could not download S3 object: ${emailBucket}/${s3ObjectKey} : ${e}`);
     return Promise.reject({ status: 400, message: 'Could not download S3 object' });
   }
 };
@@ -44,7 +44,7 @@ const getEmailObjectAndPublishEvent = s3 => async (emailRecord) => {
 const sendGroupMail = (req, res) => {
   const s3 = new AWS.S3({ region, accessKeyId, secretAccessKey, endpoint });
 
-  return Promise.all(req.body.emailRecords.map(getEmailObjectAndPublishEvent(s3)))
+  return getEmailObjectAndPublishEvent(s3, req.body.s3ObjectKey)
     .then(() => res.status(202).send())
     .catch((error) => {
       logger.error(error.message);
