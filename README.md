@@ -20,15 +20,15 @@ The service:
 
 1. To seed:
 
-    `$ ./auto/dev-environment npm run seed`
+    `$ ./auto/dev-environment yarn seed`
 
 1. To run:
 
-    `$ ./auto/dev-environment npm start`
+    `$ ./auto/dev-environment yarn start`
 
 1. To test:
 
-    `$ ./auto/dev-environment npm test`
+    `$ ./auto/dev-environment yarn test`
 
 ## Send a test request
 To test the application manually, you can simulate the uploading of an email to S3, and then trigger the application via

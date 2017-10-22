@@ -12,7 +12,7 @@ services:
       STREAM_NAME: rabblerouser_stream
       S3_EMAILS_BUCKET: email-bucket
       ARCHIVE_BUCKET: rr-event-archive
-    command: npm start
+    command: yarn start
     volumes:
       - .:/app
     ports:
