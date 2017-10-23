@@ -14,7 +14,7 @@ describe('sendGroupMail', () => {
 
   const awsSuccess = data => ({ promise: () => Promise.resolve(data) });
   const awsFailure = error => ({ promise: () => Promise.reject(error) });
-  const emailData = ({ subject = 'Some Subject', from = 'admin@example.com', to = 'everyone@example.com' } = {}) => ({
+  const emailData = ({ subject = 'Some Subject', from = 'someone@gmail.com', to = 'everyone@example.com' } = {}) => ({
     subject,
     from: { value: [{ address: from }] },
     to: { value: [{ address: to }] },
@@ -27,37 +27,35 @@ describe('sendGroupMail', () => {
     res.status.returns(res);
     s3 = { getObject: sinon.stub() };
     sandbox.stub(AWS, 'S3').returns(s3);
+    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(s3Object));
     sandbox.stub(mailParser, 'simpleParser').withArgs('Some email body').returns(emailData());
     sandbox.stub(streamClient, 'publish').resolves();
     sandbox.stub(uuid, 'v4').returns('some-uuid');
-    sandbox.stub(store, 'getMemberEmails').returns(['john@example.com', 'jane@example.com']);
-    sandbox.stub(store, 'getAuthorisedSenders').returns(['admin@example.com']);
+    sandbox.stub(store, 'getMemberEmails').returns(['john@hotmail.com', 'jane@yahoo.com']);
+    sandbox.stub(store, 'getAuthorisedSenders').returns(['someone@gmail.com']);
   });
 
   afterEach(() => {
     sandbox.restore();
   });
 
-  it('puts a send-email event on the stream and returns 202', () => {
-    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(s3Object));
-
-    return sendGroupMail(req, res)
+  it('puts a send-email event on the stream and returns 202', () => (
+    sendGroupMail(req, res)
       .then(() => {
         expect(streamClient.publish).to.have.been.calledWith('send-email', {
           id: 'some-uuid',
-          from: 'admin@example.com',
-          to: ['john@example.com', 'jane@example.com'],
+          from: 'mail@example.com',
+          to: ['john@hotmail.com', 'jane@yahoo.com'],
           subject: 'Some Subject',
           bodyLocation: {
             key: 'email-object',
           },
         });
         expect(res.status).to.have.been.calledWith(202);
-      });
-  });
+      })
+  ));
 
   it('gives a 400 if the email is not being sent to everyone', () => {
-    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(s3Object));
     mailParser.simpleParser.withArgs('Some email body').returns(emailData({ to: 'wrong@wrong.com' }));
 
     return sendGroupMail(req, res)
@@ -68,7 +66,6 @@ describe('sendGroupMail', () => {
   });
 
   it('gives a 401 if the sender is not authorised', () => {
-    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(s3Object));
     mailParser.simpleParser.withArgs('Some email body').returns(emailData({ from: 'wrong@wrong.com' }));
 
     return sendGroupMail(req, res)
@@ -89,7 +86,6 @@ describe('sendGroupMail', () => {
   });
 
   it('gives a 500 if the event publishing fails', () => {
-    s3.getObject.withArgs({ Bucket: 'email-bucket', Key: 'email-object' }).returns(awsSuccess(s3Object));
     streamClient.publish.rejects();
 
     return sendGroupMail(req, res)

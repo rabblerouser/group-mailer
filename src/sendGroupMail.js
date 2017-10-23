@@ -9,7 +9,7 @@ const logger = require('./logger');
 const { region, accessKeyId, secretAccessKey, s3Endpoint: endpoint } = config.aws;
 const emailBucket = config.emailBucket;
 
-const publishEmailEvent = (bodyLocation, email) => {
+const publishEmailEvent = (s3ObjectKey, email) => {
   const from = email.from.value[0].address;
   if (!store.getAuthorisedSenders().includes(from)) {
     return Promise.reject({ status: 401, message: 'Not an authorised email sender' });
@@ -20,11 +20,11 @@ const publishEmailEvent = (bodyLocation, email) => {
 
   return streamClient.publish('send-email', {
     id: uuid.v4(),
-    from,
+    from: `mail@${config.domain}`,
     to: store.getMemberEmails(),
     subject: email.subject,
     bodyLocation: {
-      key: bodyLocation,
+      key: s3ObjectKey,
     },
   })
     .catch(() => Promise.reject({ status: 500, message: 'Could not publish event to stream' }));
