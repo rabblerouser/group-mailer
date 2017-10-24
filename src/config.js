@@ -5,6 +5,7 @@ module.exports = {
     archiveBucket: process.env.ARCHIVE_BUCKET || 'rr-event-archive',
   },
 
+  groupMailReceiverAuthToken: process.env.GROUP_MAIL_RECEIVER_AUTH_TOKEN || 'secret',
   emailBucket: process.env.S3_EMAILS_BUCKET || 'email-bucket',
   domain: process.env.DOMAIN || 'example.com',
 
