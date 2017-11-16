@@ -20,6 +20,7 @@ const publishEmailEvent = (s3ObjectKey, email) => {
 
   return streamClient.publish('send-email', {
     id: uuid.v4(),
+    date: new Date().toISOString(),
     from: `mail@${config.domain}`,
     to: store.getMemberEmails(),
     subject: email.subject,

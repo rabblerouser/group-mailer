@@ -7,6 +7,7 @@ const store = require('../store');
 
 describe('sendGroupMail', () => {
   let sandbox;
+  let clock;
   let s3;
   let res;
   const req = { body: { s3ObjectKey: 'email-object' } };
@@ -22,6 +23,7 @@ describe('sendGroupMail', () => {
 
   beforeEach(() => {
     sandbox = sinon.sandbox.create();
+    clock = sinon.useFakeTimers(new Date('02 June 2017 13:37 UTC'));
 
     res = { status: sandbox.stub(), send: sinon.stub() };
     res.status.returns(res);
@@ -36,6 +38,7 @@ describe('sendGroupMail', () => {
   });
 
   afterEach(() => {
+    clock.restore();
     sandbox.restore();
   });
 
@@ -50,6 +53,7 @@ describe('sendGroupMail', () => {
           bodyLocation: {
             key: 'email-object',
           },
+          date: '2017-06-02T13:37:00.000Z',
         });
         expect(res.status).to.have.been.calledWith(202);
       })
