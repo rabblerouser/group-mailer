@@ -8,4 +8,4 @@ services:
 script: ./auto/dev-environment yarn ci
 
 after_success:
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then auto/docker-build-release; fi
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then auto/docker-build-release; fi
