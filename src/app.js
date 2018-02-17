@@ -8,7 +8,7 @@ const sendGroupMail = require('./sendGroupMail');
 
 const app = express();
 if (process.env.NODE_ENV !== 'test') {
-  app.use(morgan('dev'));
+  app.use(morgan('[:date[iso]] :method :url :status :response-time ms'));
 }
 app.use(bodyParser.json());
 

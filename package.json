@@ -15,7 +15,7 @@
   "author": "Rabble Rouser Team",
   "license": "AGPL-3.0",
   "dependencies": {
-    "@rabblerouser/stream-client": "^0.8.8",
+    "@rabblerouser/stream-client": "^0.8.13",
     "aws-sdk": "^2.108.0",
     "body-parser": "^1.17.2",
     "express": "^4.15.2",
