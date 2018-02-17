@@ -4,7 +4,7 @@
   "description": "Rabble Rouser service to send emails to the members of a specific group.",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
+    "dev": "nodemon -L index.js",
     "seed": "node auto/seed.js",
     "start": "node index.js",
     "ci": "yarn lint && yarn test",
